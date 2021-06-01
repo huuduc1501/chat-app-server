@@ -30,35 +30,52 @@ exports.joinGroup = asyncHandler(async (req, res, next) => {
 })
 
 exports.recommendChannel = asyncHandler(async (req, res, next) => {
+    const groupIds = await GroupMember.findAll({
+        where: {
+            memberId: req.user.id
+        },
+        attributes: ['groupId']
+    })
+    const groupIdList = groupIds.map(group => group.groupId)
+    console.log(groupIdList)
     const groups = await Group.findAll({
         where: {
-            ownerId: { [Op.not]: req.user.id }
+            id: {
+                [Op.notIn]: groupIdList
+            }
         },
-        attributes: [
-            'id',
-            'name',
-            'description'
-        ],
-        limit: 10
+        limit: 10,
+
     })
+
     res.status(200).json({ success: true, data: groups })
 })
 
+
 exports.getAllMember = asyncHandler(async (req, res, next) => {
     const group = await Group.findByPk(req.params.groupId)
-    const groupMembers = await GroupMember.findAll({
+    const memberIds = await GroupMember.findAll({
         // include: { model: User, attributes: ['id', 'avatar', 'username'] },
         where: {
             groupId: group.id
         }
     })
-    groupMembers.forEach(async (groupMember, index) => {
-        const member = await User.findByPk(groupMember.memberId, { attributes: ['id', 'username', 'avatar'] })
-        groupMember.setDataValue('member', member)
-        if (index === groupMembers.length - 1) {
-            group.setDataValue('groupMembers', groupMembers)
-            return res.status(200).json({ success: true, data: group })
-        }
+    const memberIdList = memberIds.map(member => member.memberId)
+    const groupMembers = await User.findAll({
+        where: {
+            id: memberIdList
+        },
+        attributes: ['id', 'avatar', 'username']
     })
+    group.setDataValue('groupMembers', groupMembers)
+    res.status(200).json({ success: true, data: group })
+    // memberIds.forEach(async (groupMember, index) => {
+    //     const member = await User.findByPk(groupMember.memberId, { attributes: ['id', 'username', 'avatar'] })
+    //     groupMember.setDataValue('member', member)
+    //     if (index === memberIds.length - 1) {
+    //         group.setDataValue('memberIds', memberIds)
+    //         return res.status(200).json({ success: true, data: group })
+    //     }
+    // })
     // res.status(200).json({ success: true, data: groupMember })
 })

@@ -12,7 +12,7 @@ exports.signup = asyncHandler(async (req, res, next) => {
     //         statusCode: 400,
     //     })
     // }
-    
+
     const user = await User.create(req.body)
     const salt = await bcrypt.genSalt(10)
     user.password = await bcrypt.hash(user.password, salt)
@@ -45,6 +45,7 @@ exports.login = asyncHandler(async (req, res, next) => {
 })
 
 exports.getMe = asyncHandler(async (req, res, next) => {
+    let listGroups = []
     const user = await User.findByPk(req.user.id, {
         attributes: [
             'id',
@@ -54,19 +55,21 @@ exports.getMe = asyncHandler(async (req, res, next) => {
             'email'
         ]
     })
-    const allGroup = await GroupMember.findAll({
+    const joinedGroupIds = await GroupMember.findAll({
         where: {
             memberId: req.user.id
         },
-        attributes:['groupId']
+        attributes: ['groupId']
     })
-    if(!allGroup.length) 
-        return res.status(200).json({success:true,data:user})
-    allGroup.forEach(async (group, index) => {
-        const groupDetail = await Group.findByPk(group.groupId,{attributes:['name','description','createdAt',]})
-        group.setDataValue('groupDetail', groupDetail)
-        if (allGroup.length - 1 === index) {
-            user.setDataValue('listGroup', allGroup)
+    if (!joinedGroupIds.length) {
+        user.setDataValue('listGroups', listGroups)
+        return res.status(200).json({ success: true, data: user })
+    }
+    joinedGroupIds.forEach(async (group, index) => {
+        const groupDetail = await Group.findByPk(group.groupId, { attributes: ['id', 'name', 'description', 'createdAt',] })
+        listGroups.push(groupDetail)
+        if (joinedGroupIds.length - 1 === index) {
+            user.setDataValue('listGroups', listGroups)
             return res.status(200).json({ success: true, data: user })
         }
 

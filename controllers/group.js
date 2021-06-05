@@ -36,7 +36,6 @@ exports.recommendChannel = asyncHandler(async (req, res, next) => {
         attributes: ['groupId']
     })
     const groupIdList = groupIds.map(group => group.groupId)
-    console.log(groupIdList)
     const groups = await Group.findAll({
         where: {
             id: {

@@ -32,8 +32,8 @@ io.on('connect', socket => {
 
     })
     socket.on('newMessage', data => {
-        console.log(data)
-        io.in(groupIds).emit(`newMessage${groupIds}`, data)
+        console.log(groupIds)
+        io.in(groupIds).emit(`newMessage`, data)
     })
 
     socket.on('disconnect', () => {

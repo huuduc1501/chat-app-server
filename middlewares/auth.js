@@ -23,6 +23,12 @@ exports.protect = async (req, res, next) => {
                     'cover'
                 ]
             })
+        if (!user) {
+            return next({
+                message: 'Bạn cần đăng nhập để truy cập mục này!',
+                statusCode: 401,
+            })
+        }
         req.user = user
         next()
 

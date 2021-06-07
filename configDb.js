@@ -4,7 +4,6 @@ const UserModel = require('./models/User')
 const ChatModel = require('./models/Chat')
 const GroupModel = require('./models/Group')
 const GroupChatModel = require('./models/GroupChat')
-// const GroupOwnerModel = require('./models/GroupOwner')
 const GroupMemberModel = require('./models/groupMember')
 
 console.log(process.env.DATABASE_URL)
@@ -12,7 +11,7 @@ const sequelize = new Sequelize('postgres://postgres:42717294@localhost:5432/cha
     logging: false,
 });
 
-(async () => sequelize.sync({ force: false }))()
+(async () => sequelize.sync({ force: true }))()
 
 const User = UserModel(sequelize)
 const Chat = ChatModel(sequelize)

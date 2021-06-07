@@ -19,22 +19,35 @@ const groupChatRoute = require('./routers/groupChat')
 
 const Port = process.env.PORT || 5000
 
-app.use(morgan('dev'))
-app.use(express.json())
 app.use(cors())
 
+app.use(morgan('dev'))
+app.use(express.json())
+
 io.on('connect', socket => {
-    let groupIds
+    let groupIds 
+    console.log(socket.rooms)
     console.log('connect')
     socket.on('join', groupId => {
+        console.log(socket.rooms)
         groupIds = groupId
-        socket.join(groupIds)
+        console.log('join')
+        socket.join(groupId)
+        console.log(socket.rooms)
+
 
     })
     socket.on('newMessage', data => {
-        console.log(groupIds)
+        // console.log(data.message)
         io.in(groupIds).emit(`newMessage`, data)
     })
+
+    socket.on('leave', groupId => {
+        console.log('leave')
+        socket.leave(groupId)
+        
+    })
+
 
     socket.on('disconnect', () => {
         console.log('disconnect')

@@ -8,7 +8,7 @@ exports.getAllChat = asyncHandler(async (req, res, next) => {
         where: { groupId: req.params.groupId },
         attributes: ['id', 'createdAt', 'message'],
         order: [['createdAt']],
-        limit: 20
+        // limit: 20,
     })
     // groupChats.forEach(groupChat => {
     //     if (groupChat.User.id === req.user.id)
